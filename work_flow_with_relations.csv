@@ -1,0 +1,11 @@
+Project,Phase,Task,Start Date,End Date,Related Tasks
+HPC Script Development,Planning,Requirements Gathering,2024-07-01,2024-07-15,
+HPC Script Development,Development,Code Implementation,2024-07-16,2024-09-30,Requirements Gathering
+HPC Script Development,Testing,Unit Testing,2024-10-01,2024-10-31,Code Implementation
+HPC Script Development,Testing,Integration Testing,2024-11-01,2024-11-30,Unit Testing
+HPC Script Development,Deployment,HPC Deployment,2024-12-01,2024-12-31,Integration Testing
+HPC Script Development,Maintenance,Performance Optimization,2025-01-01,2025-02-28,HPC Deployment
+Transfer Report,Writing,Literature Review,2024-07-01,2024-08-31,
+Transfer Report,Writing,Draft Report,2024-09-01,2024-10-31,"Literature Review, Code Implementation"
+Transfer Report,Review,Internal Review,2024-11-01,2024-11-30,Draft Report
+Transfer Report,Revision,Revise Report,2024-12-01,2024-12-31,"Internal Review, Integration Testing"

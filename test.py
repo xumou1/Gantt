@@ -1,15 +1,28 @@
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------
+# 基础信息
+# -*- coding: utf-8 -*-
+# @Time : 2023/4/26 14:43
+# @Author : Wanchen Xu
+# @File : test.py
+# @Software: PyCharm
+
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------
+# 导入必要的库
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 from config import *
+from matplotlib.lines import Line2D
 
-# 读取CSV文件
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------
+# 从CSV中读取基础信息文件
 df_main_tasks = pd.read_csv('main_tasks.csv', parse_dates=['start_date', 'end_date'])
 df_subtasks_training_course = pd.read_csv('training_subtasks.csv', parse_dates=['start_date', 'end_date'])
-df_learning_processes = pd.read_csv('learning_processes.csv', parse_dates=['Start Date', 'End Date'])
+# df_learning_processes = pd.read_csv('learning_processes.csv', parse_dates=['Start Date', 'End Date'])
 df_skills = pd.read_csv('skill_tree.csv', parse_dates=['Date'])
+df_work_flow = pd.read_csv('work_flow.csv', parse_dates=['Start Date', 'End Date'])
 
 # 创建一个2x2的子图布局
 fig, axs = plt.subplots(2, 2, figsize=(24, 18), gridspec_kw={'width_ratios': [2, 1]})
@@ -186,80 +199,88 @@ ax_right.set_xlim(axs[0, 0].get_xlim())
 '''
 ax_skill_tree = axs[1, 1]
 
-# 获取唯一的主要类别和技能
+# Clear the existing plot
+ax_skill_tree.clear()
+
+# Get unique categories and skills
 categories = df_skills['Category'].unique()
 skills = df_skills.groupby('Category')['Skill'].unique()
 
-# 设置颜色
+# Set colors
 category_colors = plt.cm.Set3(np.linspace(0, 1, len(categories)))
 skill_colors = plt.cm.Set2(np.linspace(0, 1, max(len(skill_set) for skill_set in skills)))
 
-# 计算每个类别的水平位置
+# Calculate horizontal positions for categories
 category_positions = {cat: i for i, cat in enumerate(categories)}
 
-# 绘制树状图
+# Draw tree diagram
 for cat_idx, (category, category_color) in enumerate(zip(categories, category_colors)):
     category_data = df_skills[df_skills['Category'] == category]
     x = category_positions[category]
 
-    # 绘制主类别线
+    # Draw main category line
     ax_skill_tree.plot([x, x], [category_data['Date'].min(), category_data['Date'].max()],
-                       color=category_color, linewidth=2)
+                       color=category_color, linewidth=3)
 
-    # 添加类别标签
-    ax_skill_tree.text(x, ax_skill_tree.get_ylim()[1], category,
+    # Add category label
+    ax_skill_tree.text(x, category_data['Date'].max(), category,
                        ha='center', va='bottom', fontsize=10, fontweight='bold', rotation=45)
 
     for skill_idx, skill in enumerate(skills[category]):
         skill_data = category_data[category_data['Skill'] == skill]
-        skill_x = x + (skill_idx + 1) * 0.2  # 调整这个值来改变子分支的间距
+        skill_x = x + (skill_idx + 1) * 0.25  # Increased spacing between skills
 
-        # 绘制技能线
+        # Draw skill line
         ax_skill_tree.plot([skill_x, skill_x], [skill_data['Date'].min(), skill_data['Date'].max()],
-                           color=skill_colors[skill_idx], linewidth=1.5)
+                           color=skill_colors[skill_idx], linewidth=2)
 
-        # 绘制从主类别到技能的连接线
+        # Draw connection line from main category to skill
         ax_skill_tree.plot([x, skill_x], [skill_data['Date'].min(), skill_data['Date'].min()],
-                           color=category_color, linestyle=':', linewidth=1)
+                           color=category_color, linestyle='--', linewidth=1.5)
 
-        # 添加技能标签
+        # Add skill label
         ax_skill_tree.text(skill_x, skill_data['Date'].min(), skill,
                            ha='right', va='center', fontsize=8, fontweight='bold', rotation=45)
 
         for _, subskill in skill_data.iterrows():
-            # 绘制子技能点
-            ax_skill_tree.scatter(skill_x, subskill['Date'], color=skill_colors[skill_idx], s=30)
+            # Draw subskill point
+            ax_skill_tree.scatter(skill_x, subskill['Date'], color=skill_colors[skill_idx], s=40)
 
-            # 添加子技能标签
+            # Add subskill label
             ax_skill_tree.text(skill_x + 0.05, subskill['Date'], subskill['SubSkill'],
                                ha='left', va='center', fontsize=7)
 
-# 设置坐标轴
-ax_skill_tree.set_xlim(-0.5, len(categories) - 0.5)
-
-# 设置y轴（日期）
+# Set axis limits and labels
+ax_skill_tree.set_xlim(-0.5, len(categories) - 0.3)  # Adjust right limit
 ax_skill_tree.yaxis.set_major_locator(mdates.MonthLocator())
 ax_skill_tree.yaxis.set_major_formatter(mdates.DateFormatter('%b %y'))
 plt.setp(ax_skill_tree.yaxis.get_majorticklabels(), rotation=0)
 
-# 隐藏x轴刻度
+# Hide x-axis ticks
 ax_skill_tree.xaxis.set_visible(False)
 
-# 设置标题和标签
-ax_skill_tree.set_title('Hierarchical Skill Development Over Time', fontsize=FONT_SIZE + 2, fontweight='bold')
+# Set title and labels
+ax_skill_tree.set_title('Skill Development Timeline', fontsize=FONT_SIZE + 2, fontweight='bold')
 ax_skill_tree.set_ylabel('Date', fontsize=FONT_SIZE)
 
-# 添加网格
+# Add grid
 ax_skill_tree.grid(True, axis='y', linestyle='--', alpha=0.7)
 
-# 设置y轴范围以匹配其他图表
-ax_skill_tree.set_ylim(axs[0, 1].get_ylim())
-
-# 反转y轴，使得较早的日期在顶部
+# Set y-axis range to include all data points
+ax_skill_tree.set_ylim(df_skills['Date'].min() - pd.Timedelta(days=15),
+                       df_skills['Date'].max() + pd.Timedelta(days=15))
 ax_skill_tree.invert_yaxis()
 
-# 调整子图之间的间距
+# Add legend
+legend_elements = [Line2D([0], [0], color=color, lw=2, label=cat)
+                   for cat, color in zip(categories, category_colors)]
+ax_skill_tree.legend(handles=legend_elements, loc='upper right', fontsize=8, bbox_to_anchor=(1.25, 1))
+
+# Adjust layout and figure size
+fig = plt.gcf()
+# fig.set_size_inches(16, 10)  # Increase figure width
 plt.tight_layout()
+# plt.subplots_adjust(right=0.85, bottom=0.1, top=0.9, left=0.1)  # Adjust margins
 
 # 显示图形
 plt.show()

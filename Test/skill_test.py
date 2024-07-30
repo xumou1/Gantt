@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 import numpy as np
 
 # 读取 CSV 文件
-df = pd.read_csv('skill_tree.csv', parse_dates=['Date'])
+df = pd.read_csv('../skill_tree.csv', parse_dates=['Date'])
 
 # 创建图形和坐标轴
 fig, ax = plt.subplots(figsize=(12, 8))
