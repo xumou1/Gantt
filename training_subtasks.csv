@@ -1,0 +1,13 @@
+id,task,category,subtask,start_date,end_date,status
+1,Attend the training course,Training,Introduction to Linux for HPC,2024-07-31,2025-03-01,Time Unknown
+2,Attend the training course,Training,Introduction to High Performance Computing,2024-07-01,2024-07-31,Finished
+3,Attend the training course,Training,Software development practices for Research,2024-07-25,2024-08-15,Finished
+4,Attend the training course,Training,Applications and containers on HPC,2024-09-10,2024-10-15,To do
+5,Attend the training course,Training,High Performance Python,2024-07-31,2025-03-01,Time Unknown
+6,Attend the training course,Training,Word for Thesis Part 1A,2024-07-31,2025-03-01,Time Unknown
+7,Attend the training course,Training,Word for Thesis Part 1B,2024-07-31,2025-03-01,Time Unknown
+8,Attend the training course,Training,Word for Thesis Part 1C,2024-07-31,2025-03-01,Time Unknown
+9,Attend the training course,Training,Word for Thesis Part 1D,2024-07-31,2025-03-01,Time Unknown
+10,Attend the training course,Training,Word for Thesis Part 2,2024-07-31,2025-03-01,Time Unknown
+11,Attend the training course,Training,Individual Writing Consultations for PGRs,2024-07-31,2025-03-01,Time Unknown
+12,Attend the training course,Training,Foundations in Teaching,2024-07-01,2024-07-04,Finished

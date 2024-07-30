@@ -1,0 +1,25 @@
+id,task,category,subtask,start_date,end_date,status
+1,Attend the training course,Training,Attend the training course,2024-07-01,2025-03-01,In Progress
+5,Complete Python Script(HPC),Work,Requirements Analysis,2024-07-01,2024-07-15,Completed
+6,Complete Python Script(HPC),Work,Design,2024-07-16,2024-08-15,Completed
+7,Complete Python Script(HPC),Work,Implementation,2024-08-16,2024-10-15,In Progress
+8,Complete Python Script(HPC),Work,Unit Testing,2024-10-16,2024-11-15,Not Started
+9,Complete Python Script(HPC),Work,Integration Testing,2024-11-16,2024-12-15,Not Started
+10,Complete Python Script(HPC),Work,Deployment to HPC,2024-12-16,2025-01-15,Not Started
+11,Complete Python Script(HPC),Work,Maintenance and Optimization,2025-01-16,2025-03-01,Not Started
+12,Write Transfer Report,Work,Write Report,2024-10-01,2024-11-01,Not Started
+13,Write Transfer Report,Work,Optimization,2024-11-01,2024-12-15,Not Started
+14,Conduct Experiments,Research,Design Experiments,2024-07-15,2024-08-15,In Progress
+15,Conduct Experiments,Research,Run Experiments,2024-08-16,2024-11-30,Not Started
+16,Conduct Experiments,Research,Analyze Results,2024-12-01,2025-01-31,Not Started
+17,Attend Conferences,Networking,Prepare Presentation,2024-09-01,2024-09-30,Not Started
+18,Attend Conferences,Networking,Attend Conference A,2024-10-15,2024-10-20,Not Started
+19,Attend Conferences,Networking,Attend Conference B,2025-02-01,2025-02-05,Not Started
+20,Publish Papers,Research,Draft Paper 1,2024-11-01,2024-12-31,Not Started
+21,Publish Papers,Research,Submit and Revise Paper 1,2025-01-01,2025-02-28,Not Started
+22,Write Scientific Review,Research,Literature Search and Reading,2024-07-01,2024-08-15,Not Started
+23,Write Scientific Review,Research,Develop Outline,2024-08-16,2024-08-31,Not Started
+24,Write Scientific Review,Research,Write First Draft,2024-09-01,2024-10-31,Not Started
+25,Write Scientific Review,Research,Revise and Refine,2024-11-01,2024-12-15,Not Started
+26,Write Scientific Review,Research,Peer Review,2024-12-16,2025-01-15,Not Started
+27,Write Scientific Review,Research,Final Revision and Submission,2025-01-16,2025-02-28,Not Started
