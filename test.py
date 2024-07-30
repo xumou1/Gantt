@@ -9,15 +9,26 @@ from config import *
 df_main_tasks = pd.read_csv('main_tasks.csv', parse_dates=['start_date', 'end_date'])
 df_subtasks_training_course = pd.read_csv('training_subtasks.csv', parse_dates=['start_date', 'end_date'])
 df_learning_processes = pd.read_csv('learning_processes.csv', parse_dates=['Start Date', 'End Date'])
+df_skills = pd.read_csv('skill_tree.csv', parse_dates=['Date'])
 
 # 创建一个2x2的子图布局
-fig, axs = plt.subplots(2, 2, figsize=(24, 24), gridspec_kw={'width_ratios': [2, 1]})
+fig, axs = plt.subplots(2, 2, figsize=(24, 18), gridspec_kw={'width_ratios': [2, 1]})
 
 # 创建任务到数字的映射
 unique_tasks = df_main_tasks['task'].unique()
 task_to_num = {task: i for i, task in enumerate(unique_tasks)}
 
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*
 # 绘制整体甘特图 (左上角)
+'''
+    Gantt图完整版 Version1.0
+    状态：暂定完成
+    整体甘特图：
+    - 主任务：用不同颜色表示不同类别
+    - 子任务：用不同颜色表示不同状态
+    - 文本：显示子任务名称
+'''
+
 for task in unique_tasks:
     task_data = df_main_tasks[df_main_tasks['task'] == task]
     task_category = task_data['category'].iloc[0]
@@ -79,7 +90,18 @@ axs[0, 0].grid(True, alpha=0.3)
 # 为训练课程子任务创建编号
 subtask_to_num = {subtask: i for i, subtask in enumerate(df_subtasks_training_course['subtask'])}
 
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------
 # 绘制特定主任务的细节甘特图 (左下角)
+'''
+    Gantt图完全版 Version1.0
+    状态：暂定完成
+    细节Gantt图：
+    - 子任务：[子任务名称]
+    - 开始日期：[开始日期]
+    - 结束日期：[结束日期]
+    - 状态：[状态]
+'''
+
 for i, subtask in df_subtasks_training_course.iterrows():
     task_category = subtask['category']
     subtask_num = subtask_to_num[subtask['subtask']]
@@ -103,8 +125,20 @@ axs[1, 0].set_title('Sub-Gantt for Attending the Training Course', fontsize=FONT
 # 添加网格
 axs[1, 0].grid(True, alpha=0.3)
 
-# 绘制学习流程图 (右侧)
-ax_right = axs[0, 1]  # 使用已有的子图，而不是创建新的
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------
+# 绘制学习流程图 (右上角)
+'''
+    Gantt图完全版 Version1.0
+    状态：待施工
+    学习流程图：
+    - 每个学习流程步骤创建一个唯一的编号
+    - 每个学习流程步骤用条形图表示，条形图的高度为0.3
+    - 每个学习流程步骤的条形图颜色由LEARNING_PROCESS_COLORS字典决定
+    - 每个学习流程步骤的条形图边缘颜色为黑色，线条宽度为1
+    - 每个学习流程步骤的条形图在y轴上的位置由步骤编号决定
+    - 每个学习流程步骤的条形图的x轴范围由步骤的开始日期和结束日期决定
+'''
+ax_right = axs[0, 1]
 
 # 为每个学习流程步骤创建一个唯一的编号
 steps = df_learning_processes['Step'].unique()
@@ -138,88 +172,94 @@ ax_right.grid(True, alpha=0.3)
 # 调整x轴范围以匹配主甘特图
 ax_right.set_xlim(axs[0, 0].get_xlim())
 
-# 调整子图之间的间距
-plt.tight_layout()
-
-# 添加技能树状图（右下角）
+# ----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*----------*
+# 绘制技能树状图（右下角）
+'''
+    Gantt图完全版 Version1.0
+    状态：暂定完成
+    技能树状图：
+    - 每个技能类别作为主干
+    - 每个技能点作为主干上的分支
+    - 技能点的时间作为分支的高度
+    
+    注意：由于技能树状图的数据量较大，可能需要调整绘图参数以适应页面大小
+'''
 ax_skill_tree = axs[1, 1]
 
-# 定义技能数据
-skills = {
-    'Programming': [
-        ('Python Basics', '2024-07-01'),
-        ('Data Structures', '2024-08-15'),
-        ('Algorithms', '2024-10-01'),
-        ('Machine Learning', '2024-12-01'),
-        ('Deep Learning', '2025-02-01')
-    ],
-    'HPC': [
-        ('Linux Basics', '2024-07-15'),
-        ('Parallel Computing', '2024-09-01'),
-        ('MPI', '2024-11-01'),
-        ('GPU Programming', '2025-01-01')
-    ],
-    'Data Analysis': [
-        ('Statistics', '2024-08-01'),
-        ('Data Visualization', '2024-09-15'),
-        ('Big Data Tools', '2024-11-15'),
-        ('Time Series Analysis', '2025-01-15')
-    ]
-}
+# 获取唯一的主要类别和技能
+categories = df_skills['Category'].unique()
+skills = df_skills.groupby('Category')['Skill'].unique()
 
 # 设置颜色
-colors = plt.cm.Set3(np.linspace(0, 1, len(skills)))
+category_colors = plt.cm.Set3(np.linspace(0, 1, len(categories)))
+skill_colors = plt.cm.Set2(np.linspace(0, 1, max(len(skill_set) for skill_set in skills)))
+
+# 计算每个类别的水平位置
+category_positions = {cat: i for i, cat in enumerate(categories)}
 
 # 绘制树状图
-for i, (skill_category, skill_list) in enumerate(skills.items()):
-    x = i * 2  # 水平位置
-    dates = [pd.to_datetime(date) for _, date in skill_list]
-    y = mdates.date2num(dates)
+for cat_idx, (category, category_color) in enumerate(zip(categories, category_colors)):
+    category_data = df_skills[df_skills['Category'] == category]
+    x = category_positions[category]
 
-    # 绘制主干
-    ax_skill_tree.plot([x, x], [y[0], y[-1]], color=colors[i], linewidth=2)
+    # 绘制主类别线
+    ax_skill_tree.plot([x, x], [category_data['Date'].min(), category_data['Date'].max()],
+                       color=category_color, linewidth=2)
 
-    # 绘制分支和技能点
-    for j, (skill, _) in enumerate(skill_list):
-        ax_skill_tree.plot([x, x + 1], [y[j], y[j]], color=colors[i])
-        ax_skill_tree.scatter(x + 1, y[j], color=colors[i], s=50)
-        ax_skill_tree.text(x + 1.1, y[j], skill, va='center', ha='left', fontsize=8)
+    # 添加类别标签
+    ax_skill_tree.text(x, ax_skill_tree.get_ylim()[1], category,
+                       ha='center', va='bottom', fontsize=10, fontweight='bold', rotation=45)
 
-    # 添加技能类别标签
-    ax_skill_tree.text(x, y[-1], skill_category, va='bottom', ha='center', fontsize=10, fontweight='bold')
+    for skill_idx, skill in enumerate(skills[category]):
+        skill_data = category_data[category_data['Skill'] == skill]
+        skill_x = x + (skill_idx + 1) * 0.2  # 调整这个值来改变子分支的间距
+
+        # 绘制技能线
+        ax_skill_tree.plot([skill_x, skill_x], [skill_data['Date'].min(), skill_data['Date'].max()],
+                           color=skill_colors[skill_idx], linewidth=1.5)
+
+        # 绘制从主类别到技能的连接线
+        ax_skill_tree.plot([x, skill_x], [skill_data['Date'].min(), skill_data['Date'].min()],
+                           color=category_color, linestyle=':', linewidth=1)
+
+        # 添加技能标签
+        ax_skill_tree.text(skill_x, skill_data['Date'].min(), skill,
+                           ha='right', va='center', fontsize=8, fontweight='bold', rotation=45)
+
+        for _, subskill in skill_data.iterrows():
+            # 绘制子技能点
+            ax_skill_tree.scatter(skill_x, subskill['Date'], color=skill_colors[skill_idx], s=30)
+
+            # 添加子技能标签
+            ax_skill_tree.text(skill_x + 0.05, subskill['Date'], subskill['SubSkill'],
+                               ha='left', va='center', fontsize=7)
 
 # 设置坐标轴
-ax_skill_tree.yaxis_date()
+ax_skill_tree.set_xlim(-0.5, len(categories) - 0.5)
+
+# 设置y轴（日期）
 ax_skill_tree.yaxis.set_major_locator(mdates.MonthLocator())
-ax_skill_tree.yaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
+ax_skill_tree.yaxis.set_major_formatter(mdates.DateFormatter('%b %y'))
+plt.setp(ax_skill_tree.yaxis.get_majorticklabels(), rotation=0)
 
-ax_skill_tree.set_xlim(-1, len(skills) * 2)
-ax_skill_tree.set_ylim(ax_skill_tree.get_ylim()[::-1])  # 反转 y 轴，使时间从上到下
+# 隐藏x轴刻度
+ax_skill_tree.xaxis.set_visible(False)
 
-ax_skill_tree.set_title('Skill Development Over Time', fontsize=FONT_SIZE + 2, fontweight='bold')
-ax_skill_tree.set_xlabel('Skills', fontsize=FONT_SIZE)
-ax_skill_tree.set_ylabel('Time', fontsize=FONT_SIZE)
+# 设置标题和标签
+ax_skill_tree.set_title('Hierarchical Skill Development Over Time', fontsize=FONT_SIZE + 2, fontweight='bold')
+ax_skill_tree.set_ylabel('Date', fontsize=FONT_SIZE)
 
-ax_skill_tree.set_xticks([])
+# 添加网格
 ax_skill_tree.grid(True, axis='y', linestyle='--', alpha=0.7)
+
+# 设置y轴范围以匹配其他图表
+ax_skill_tree.set_ylim(axs[0, 1].get_ylim())
+
+# 反转y轴，使得较早的日期在顶部
+ax_skill_tree.invert_yaxis()
 
 # 调整子图之间的间距
 plt.tight_layout()
-
-'''
-# 添加注释
-fig.text(0.01, 0.01, 'Annotation for Complete Python Script(HPC):', ha='left', va='bottom', fontsize=FONT_SIZE + 3,
-         fontweight='bold')
-fig.text(0.01, 0.005, 'The task follows standard Software Development Life Cycle (SDLC)', ha='left', va='bottom',
-         fontsize=FONT_SIZE)
-fig.text(0.01, 0, 'including Requirements Analysis, Design, Implementation,', ha='left', va='bottom',
-         fontsize=FONT_SIZE)
-fig.text(0.01, -0.005, 'Testing (Unit and Integration), Deployment, and Maintenance.', ha='left', va='bottom',
-         fontsize=FONT_SIZE)
-'''
-
-# 将图以600 DPI, JPEG格式导出
-# plt.savefig('complex_gantt_chart_with_learning_processes_english.jpg', format='jpeg', dpi=600, bbox_inches='tight')
 
 # 显示图形
 plt.show()

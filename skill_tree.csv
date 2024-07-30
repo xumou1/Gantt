@@ -1,0 +1,13 @@
+Category,Skill,SubSkill,Date
+Programming,Python,Basics,2024-07-01
+Programming,Python,Data Structures,2024-08-15
+Programming,Python,Algorithms,2024-10-01
+Programming,Machine Learning,Supervised Learning,2024-12-01
+Programming,Machine Learning,Unsupervised Learning,2025-01-15
+HPC,Linux,Bash Scripting,2024-07-15
+HPC,Parallel Computing,MPI,2024-09-01
+HPC,Parallel Computing,OpenMP,2024-10-01
+Data Analysis,Statistics,Descriptive Statistics,2024-08-01
+Data Analysis,Statistics,Inferential Statistics,2024-09-15
+Data Analysis,Big Data,Hadoop,2024-11-15
+Data Analysis,Big Data,Spark,2025-01-15
