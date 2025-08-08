@@ -1,0 +1,252 @@
+; InternationalTrade.nls
+; A minimal NetLogo code module for an easy international trade simulation
+; - Multiple countries (turtles)
+; - Two goods: A and B (B is numeraire with price 1)
+; - Countries specialize by comparative advantage each tick
+; - Cobb-Douglas demand; price of A adjusts by excess demand (tatonnement)
+; - Trade flows for good A are visualized on links
+
+;; Interface expects sliders (create these in the Interface tab):
+;;   num-countries (2 .. 30, default 8)
+;;   price-adjust-speed (0 .. 1, default 0.2)
+;; Buttons:
+;;   setup (observer)
+;;   go (forever)
+;; Monitors (optional):
+;;   pA, world-excess-demand-a, world-GDP, total-trade-value
+;; Plots (optional, names used by update-plots):
+;;   "Price of A" with pen "pA"
+;;   "Excess Demand A" with pen "excess"
+;;   "Trade Value" with pen "value"
+
+; =====================
+; Globals and breeds
+; =====================
+
+globals [
+  pA                             ; price of good A (good B price is 1)
+  world-excess-demand-a          ; aggregate excess demand for A
+  world-gdp                      ; sum of country incomes
+  total-trade-value              ; sum of value of bilateral trade in A (value terms)
+  ; the following are interface variables; declaring them avoids warnings
+  num-countries
+  price-adjust-speed
+]
+
+breed [ countries country ]
+undirected-link-breed [ trade-links trade-link ]
+
+countries-own [
+  labor
+  productivity-a
+  productivity-b
+  alpha                          ; Cobb-Douglas share for good A
+
+  output-a
+  output-b
+  income
+  demand-a
+  demand-b
+  net-demand-a                   ; desired minus produced (positive = importer of A)
+]
+
+trade-links-own [
+  flow-a                         ; bilateral flow of good A (in quantity units of A)
+]
+
+; =====================
+; Setup
+; =====================
+
+to setup
+  clear-all
+  set-default-shape countries "circle"
+
+  ; Clamp interface inputs to safe ranges
+  set num-countries max list 2 (min list 30 num-countries)
+  set price-adjust-speed max list 0 (min list 1 price-adjust-speed)
+
+  ; Create countries and lay them out on a circle
+  create-countries num-countries [
+    initialize-country-attributes
+  ]
+  layout-countries-in-circle
+
+  ; Fully connect the network for simple trade visualization
+  ask countries [
+    create-trade-links-with other countries
+  ]
+  ask trade-links [ set color gray set thickness 0.2 set flow-a 0 ]
+
+  ; Initial price of A
+  set pA 1.0
+
+  ; Initialize macro stats
+  set world-excess-demand-a 0
+  set world-gdp 0
+  set total-trade-value 0
+
+  reset-ticks
+end
+
+; Helper to initialize attributes for a single country
+
+to initialize-country-attributes  ;; country procedure
+  ; Endowments and preferences
+  set labor 80 + random-float 40                      ; 80 .. 120
+  set productivity-a 0.5 + random-float 1.5          ; 0.5 .. 2.0
+  set productivity-b 0.5 + random-float 1.5          ; 0.5 .. 2.0
+  set alpha 0.3 + random-float 0.4                   ; 0.3 .. 0.7
+
+  ; Visuals baseline
+  set color gray
+  set size 1.2
+  set label-color white
+end
+
+; Lay countries in a circle using degree-based trig (NetLogo trig uses degrees)
+
+to layout-countries-in-circle
+  let n count countries
+  let r (min (list (max-pxcor - 2) (max-pycor - 2)))
+  if r < 4 [ set r 4 ]
+
+  ; who values are contiguous after create-; use order by who for deterministic placement
+  let ordered sort countries
+  let i 0
+  foreach ordered [ c ->
+    let angle (360 * i / n)
+    ask c [ setxy r * cos angle r * sin angle set label who ]
+    set i (i + 1)
+  ]
+end
+
+; =====================
+; Main loop
+; =====================
+
+to go
+  ; 1) Production: specialize by comparative advantage (revenue per labor)
+  ask countries [
+    let rev-a pA * productivity-a
+    let rev-b 1 * productivity-b
+    ifelse rev-a > rev-b [
+      set output-a labor * productivity-a
+      set output-b 0
+    ] [
+      set output-a 0
+      set output-b labor * productivity-b
+    ]
+  ]
+
+  ; 2) Incomes and demands (Cobb-Douglas)
+  ask countries [
+    set income pA * output-a + 1 * output-b
+    set demand-a alpha * income / pA
+    set demand-b (1 - alpha) * income / 1
+    set net-demand-a demand-a - output-a
+  ]
+
+  ; 3) Aggregate stats
+  set world-excess-demand-a sum [ net-demand-a ] of countries
+  set world-gdp sum [ income ] of countries
+
+  ; 4) Price adjustment for good A (tatonnement).
+  ;    Normalize excess by total supply of A to stabilize scaling.
+  let total-supply-a max (list (sum [ output-a ] of countries) 1e-6)
+  let adj (price-adjust-speed * (world-excess-demand-a / total-supply-a))
+  ; exponential update keeps price positive
+  set pA max list 0.01 (pA * exp adj)
+
+  ; 5) Compute stylized bilateral trade flows for visualization (good A only)
+  compute-trade-flows-a
+
+  ; 6) Visual updates
+  update-visuals
+
+  ; 7) Optional plots (create plots in Interface with names below)
+  update-plots
+
+  tick
+end
+
+; =====================
+; Trade flow computation (good A)
+; =====================
+
+to compute-trade-flows-a
+  ask trade-links [ set flow-a 0 ]
+
+  let importers countries with [ net-demand-a > 0 ]
+  let exporters countries with [ net-demand-a < 0 ]
+  let total-deficit sum [ net-demand-a ] of importers  ; positive
+
+  if any? importers and any? exporters and (total-deficit > 0) [
+    ask exporters [
+      let surplus (- net-demand-a)  ; positive amount of A available to export
+      if surplus > 0 [
+        let importers-list sort importers
+        foreach importers-list [ i ->
+          let share ([net-demand-a] of i) / total-deficit
+          if share > 0 [
+            let link trade-link-with i
+            if link != nobody [
+              ask link [ set flow-a flow-a + (surplus * share) ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  ; Convert flows to value terms for a trade value headline stat
+  set total-trade-value pA * (sum [ flow-a ] of trade-links)
+end
+
+; =====================
+; Visuals
+; =====================
+
+to update-visuals
+  ; Countries: color by specialization, size by income
+  let mean-income (mean [ income ] of countries)
+  if mean-income = nobody [ set mean-income 1 ]
+
+  ask countries [
+    ifelse output-a > 0 [ set color red + 1 ] [ set color blue + 1 ]
+    let rel sqrt (income / (mean-income + 1e-6))
+    set size 0.8 + 1.8 * rel
+  ]
+
+  ; Links: thickness by flow
+  let max-flow max (list (max [ flow-a ] of trade-links) 0)
+  ask trade-links [
+    set color 95  ; gray
+    let t 0.2
+    if max-flow > 0 [ set t 0.2 + 2.5 * (flow-a / max-flow) ]
+    set thickness t
+  ]
+end
+
+; =====================
+; Plots (optional)
+; =====================
+
+to update-plots
+  ; These will no-op if the plots don't exist yet, but in NetLogo calling plotting primitives
+  ; on missing plots raises an error. Keep these plot calls commented until you add plots.
+
+  ; Uncomment after creating the plots named below in the Interface:
+
+  ; set-current-plot "Price of A"
+  ; set-current-plot-pen "pA"
+  ; plot pA
+
+  ; set-current-plot "Excess Demand A"
+  ; set-current-plot-pen "excess"
+  ; plot world-excess-demand-a
+
+  ; set-current-plot "Trade Value"
+  ; set-current-plot-pen "value"
+  ; plot total-trade-value
+end
