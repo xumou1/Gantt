@@ -1,0 +1,51 @@
+checkpoint_path: /workspace/pinn_glacier/outputs/smoke_test/model.pt
+data:
+  dataset_path: /workspace/pinn_glacier/data/qtp_glacier.nc
+  end_year: 2100
+  normalize_targets: true
+  start_year: 1980
+  train_end_year: 2020
+infer:
+  output_dir: /workspace/pinn_glacier/outputs/qtp_future
+  write_full_timeseries: false
+  years:
+  - 2020
+  - 2030
+  - 2040
+  - 2060
+  - 2080
+  - 2100
+model:
+  activation: sine
+  fourier_features: 64
+  fourier_sigma: 10.0
+  hidden_dim: 256
+  input_dim: 3
+  num_hidden_layers: 6
+  use_fourier_features: true
+output_dir: /workspace/pinn_glacier/outputs/smoke_test
+physics:
+  A: 1.0e-24
+  bc: zero_flux
+  g: 9.81
+  n: 3.0
+  rho: 917.0
+project_name: qtp_glacier
+train:
+  batch:
+    num_boundary: 256
+    num_collocation: 1024
+    num_data: 512
+    num_initial: 512
+  device: auto
+  epochs: 5
+  loss_weights:
+    bc: 0.1
+    data: 1.0
+    ic: 1.0
+    pde: 1.0
+  lr: 0.001
+  scheduler_gamma: 0.9995
+  seed: 42
+  steps_per_epoch: 1
+  weight_decay: 0.0
